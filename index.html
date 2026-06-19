@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI Image Creator Pro Max</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ===== TOAST ===== -->
+    <div id="toast"></div>
+
+    <!-- ===== OVERLAY ===== -->
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <!-- ===== SIDEBAR ===== -->
+    <div id="sidebar">
+        <button class="close-btn" onclick="closeSidebar()">✕</button>
+        <div class="brand">✦ AI Image</div>
+        <button class="menu-item" onclick="navigateTo('home')"><span class="icon">🏠</span> Home</button>
+        <button class="menu-item" onclick="navigateTo('history')"><span class="icon">📜</span> History</button>
+        <button class="menu-item" onclick="navigateTo('favorites')"><span class="icon">⭐</span> Favorites</button>
+        <div class="menu-divider"></div>
+        <button class="menu-item" onclick="logoutUser()"><span class="icon">🚪</span> Logout</button>
+    </div>
+
+    <!-- ===== APP WRAP ===== -->
+    <div class="app-wrap" id="appContainer">
+
+        <!-- LOGIN -->
+        <div id="loginPage">
+            <div class="logo">✦ AI Image</div>
+            <div class="logo-sub">Creator Pro Max</div>
+            <div class="input-group"><input type="text" id="loginUsername" placeholder="Username"></div>
+            <div class="input-group"><input type="password" id="loginPassword" placeholder="Password"></div>
+            <button class="btn-primary" onclick="loginUser()">Login</button>
+            <div class="toggle-link">No account? <span onclick="showSignup()">Sign Up</span></div>
+            <div id="signupForm" class="hidden" style="width:100%; margin-top:14px;">
+                <div class="input-group"><input type="text" id="signupUsername" placeholder="Choose Username"></div>
+                <div class="input-group"><input type="password" id="signupPassword" placeholder="Choose Password"></div>
+                <button class="btn-primary" onclick="signupUser()">Create Account</button>
+                <div class="toggle-link">Already have? <span onclick="showLogin()">Login</span></div>
+            </div>
+        </div>
+
+        <!-- MAIN APP -->
+        <div id="app">
+            <!-- HEADER -->
+            <div class="header">
+                <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+                <h1>AI Image <small>Pro Max</small></h1>
+                <div class="header-actions">
+                    <span class="user-badge" id="userBadge">User</span>
+                </div>
+            </div>
+
+            <!-- HOME VIEW -->
+            <div id="homeView">
+                <div class="welcome-text">👋 Welcome back, <strong>Creator</strong></div>
+                <div id="styleBadge" class="style-badge">⚡ Pro Max • 3-5 sec</div>
+
+                <!-- TOP CONTROLS -->
+                <div class="top-controls">
+                    <div class="size-selector">
+                        <button class="active" data-w="512" data-h="512" onclick="setSize(this,'512','512')">1:1</button>
+                        <button data-w="768" data-h="512" onclick="setSize(this,'768','512')">4:3</button>
+                        <button data-w="512" data-h="768" onclick="setSize(this,'512','768')">3:4</button>
+                        <button data-w="768" data-h="432" onclick="setSize(this,'768','432')">16:9</button>
+                        <button data-w="1024" data-h="1024" onclick="setSize(this,'1024','1024')">HD</button>
+                    </div>
+                    <div class="turbo-toggle" id="turboToggle" onclick="toggleTurbo()">
+                        <span class="indicator"></span>
+                        <span>Turbo</span>
+                    </div>
+                </div>
+
+                <!-- STYLE CHIPS -->
+                <div class="style-chips" id="styleChips">
+                    <button class="active" data-style="" onclick="setStyle(this,'')">All</button>
+                    <button data-style="photorealistic, 8k, professional photography" onclick="setStyle(this,'photorealistic, 8k, professional photography')">Real</button>
+                    <button data-style="3d render, octane render, cgi, highly detailed" onclick="setStyle(this,'3d render, octane render, cgi, highly detailed')">3D</button>
+                    <button data-style="anime style, studio ghibli, vibrant colors" onclick="setStyle(this,'anime style, studio ghibli, vibrant colors')">Anime</button>
+                    <button data-style="cyberpunk, neon lights, futuristic, 8k" onclick="setStyle(this,'cyberpunk, neon lights, futuristic, 8k')">Cyber</button>
+                    <button data-style="fantasy art, magical, epic composition" onclick="setStyle(this,'fantasy art, magical, epic composition')">Fantasy</button>
+                    <button data-style="oil painting, vibrant colors, masterpiece" onclick="setStyle(this,'oil painting, vibrant colors, masterpiece')">Art</button>
+                    <button data-style="cartoon style, playful, vibrant" onclick="setStyle(this,'cartoon style, playful, vibrant')">Cartoon</button>
+                </div>
+
+                <!-- NEGATIVE TOGGLE -->
+                <div class="neg-toggle" onclick="toggleNeg()">
+                    <span>🚫 Negative Prompt</span>
+                    <div class="switch" id="negSwitch"></div>
+                </div>
+                <input class="neg-input" id="negInput" placeholder="What to avoid... (e.g., blurry, ugly)" style="display:none;">
+
+                <!-- COMPACT SEARCH BAR -->
+                <div class="compact-input-wrapper">
+                    <input type="text" id="promptInput" placeholder="Describe your image..." autocomplete="off">
+                    <div class="action-btns">
+                        <button class="plus-btn" id="refTrigger" onclick="document.getElementById('refFileInput').click()">+</button>
+                        <input type="file" id="refFileInput" accept="image/*" style="display:none" onchange="handleRefUpload(event)">
+                        <button class="voice-btn" id="voiceBtn" onclick="startVoice()">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                <line x1="12" y1="19" x2="12" y2="23"/>
+                                <line x1="8" y1="23" x2="16" y2="23"/>
+                            </svg>
+                        </button>
+                        <button class="random-btn" onclick="randomPrompt()">🎲</button>
+                        <button class="gen-btn" onclick="generateImage()">⚡</button>
+                    </div>
+                </div>
+
+                <!-- REFERENCE PREVIEW -->
+                <div class="ref-preview-mini" id="refPreviewMini">
+                    <img id="refPreviewImg" src="" alt="Ref">
+                    <span class="label">📎 Ref</span>
+                    <button class="remove" onclick="removeRefImage()">✕</button>
+                </div>
+
+                <!-- QUICK SUGGESTIONS -->
+                <div class="quick-suggestions">
+                    <button onclick="setPrompt('A realistic human full body portrait, professional photography, 8k, detailed')">👤 Human</button>
+                    <button onclick="setPrompt('3D render of a dragon, octane render, highly detailed, 8k')">🐉 3D</button>
+                    <button onclick="setPrompt('Anime girl full body, studio ghibli style, vibrant colors')">🎌 Anime</button>
+                    <button onclick="setPrompt('A beautiful landscape, sunset, oil painting, 8k')">🌅 Art</button>
+                    <button onclick="setPrompt('Cyberpunk city, neon lights, futuristic, 8k')">🌃 Cyber</button>
+                </div>
+
+                <!-- SKELETON -->
+                <div class="skeleton-box" id="skeletonLoader"></div>
+
+                <!-- RESULT -->
+                <div class="result-area" id="resultArea">
+                    <div class="image-frame">
+                        <img id="generatedImage" src="" alt="Generated">
+                    </div>
+                    <div class="rating-section">
+                        <button class="rate-btn like" onclick="rateImage('like')">👍</button>
+                        <span class="count" id="ratingCount">0</span>
+                        <button class="rate-btn dislike" onclick="rateImage('dislike')">👎</button>
+                    </div>
+                    <div class="result-actions">
+                        <button class="dl-btn" onclick="downloadImage()">💾</button>
+                        <button class="fav-btn" onclick="addToFavorites()">⭐</button>
+                        <button class="share-btn" onclick="shareImage()">📤</button>
+                        <button class="regen-btn" onclick="regenerateImage()">🔄</button>
+                        <button class="batch-btn" onclick="batchGenerate()">📚</button>
+                        <button class="enhance-btn" onclick="enhanceImage()">🔮 Enhance</button>
+                        <button onclick="clearResult()">✕</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HISTORY -->
+            <div id="historyView" class="view-container hidden-view">
+                <div class="view-header">
+                    <h3>📜 History</h3>
+                    <button class="back-btn" onclick="navigateTo('home')">✕</button>
+                </div>
+                <div id="historyList"></div>
+            </div>
+
+            <!-- FAVORITES -->
+            <div id="favoritesView" class="view-container hidden-view">
+                <div class="view-header">
+                    <h3>⭐ Favorites</h3>
+                    <button class="back-btn" onclick="navigateTo('home')">✕</button>
+                </div>
+                <div id="favoritesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
